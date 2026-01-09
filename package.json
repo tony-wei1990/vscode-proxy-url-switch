@@ -1,0 +1,169 @@
+{
+  "name": "proxy-url-switcher",
+  "displayName": "Proxy URL Switcher",
+  "description": "One-click update for proxy-url-list-new.json",
+  "version": "0.0.10",
+  "icon": "resources/icon.png",
+  "publisher": "tony",
+  "author": "tony",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tony-wei1990/vscode-proxy-url-switch"
+  },
+  "scripts": {
+    "package": "vsce package"
+  },
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "proxy-switcher-container",
+          "title": "代理切换",
+          "icon": "resources/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "proxy-switcher-container": [
+        {
+          "id": "proxyUrlSwitcher.view",
+          "name": "Proxy Targets",
+          "icon": "resources/icon.png"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "proxyUrlSwitcher.refreshView",
+        "title": "刷新",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "proxyUrlSwitcher.setHostPort",
+        "title": "应用 Host:Port",
+        "icon": "$(check)"
+      },
+      {
+        "command": "proxyUrlSwitcher.addCustomOrigin",
+        "title": "添加",
+        "icon": "$(add)"
+      },
+      {
+        "command": "proxyUrlSwitcher.clearCustomOrigins",
+        "title": "清空自定义地址",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "proxyUrlSwitcher.deleteCustomOrigin",
+        "title": "删除",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "proxyUrlSwitcher.addStandardProfile",
+        "title": "添加",
+        "icon": "$(add)"
+      },
+      {
+        "command": "proxyUrlSwitcher.deleteStandardProfile",
+        "title": "删除",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "proxyUrlSwitcher.editOrigin",
+        "title": "编辑",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "proxyUrlSwitcher.copyOrigin",
+        "title": "复制地址",
+        "icon": "$(copy)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "proxyUrlSwitcher.refreshView",
+          "group": "navigation"
+        },
+        {
+          "command": "proxyUrlSwitcher.setHostPort",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "proxyUrlSwitcher.addCustomOrigin",
+          "when": "view == proxyUrlSwitcher.view && viewItem == custom",
+          "group": "inline"
+        },
+        {
+          "command": "proxyUrlSwitcher.copyOrigin",
+          "when": "view == proxyUrlSwitcher.view && (viewItem == customOriginItem || viewItem == standardProfileItem)",
+          "group": "inline@0"
+        },
+        {
+          "command": "proxyUrlSwitcher.editOrigin",
+          "when": "view == proxyUrlSwitcher.view && (viewItem == customOriginItem || viewItem == standardProfileItem)",
+          "group": "inline@1"
+        },
+        {
+          "command": "proxyUrlSwitcher.deleteCustomOrigin",
+          "when": "view == proxyUrlSwitcher.view && viewItem == customOriginItem",
+          "group": "inline@2"
+        },
+        {
+          "command": "proxyUrlSwitcher.addStandardProfile",
+          "when": "view == proxyUrlSwitcher.view && viewItem == standard",
+          "group": "inline"
+        },
+        {
+          "command": "proxyUrlSwitcher.deleteStandardProfile",
+          "when": "view == proxyUrlSwitcher.view && viewItem == standardProfileItem",
+          "group": "inline@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Proxy URL Switcher",
+      "properties": {
+        "proxyUrlSwitcher.profiles": {
+          "type": "array",
+          "default": [
+            { "name": "dev (v11开发环境)", "origin": "http://10.8.130.1:7002", "group": "dev" },
+            { "name": "dev (v20开发环境)", "origin": "http://10.8.130.3:7002", "group": "dev" },
+            { "name": "SIT-PG", "origin": "http://10.8.1.80:7002", "group": "SIT" },
+            { "name": "SIT-oracle", "origin": "http://10.8.1.63:7002", "group": "SIT" },
+            { "name": "SIT-DM", "origin": "http://10.8.17.27:7002", "group": "SIT" },
+            { "name": "SIT-mysql", "origin": "http://10.8.110.20:7002", "group": "SIT" },
+            { "name": "uat-PG", "origin": "http://10.8.110.2:7002", "group": "UAT" },
+            { "name": "uat-DM", "origin": "http://10.8.110.4:7002", "group": "UAT" },
+            { "name": "uat-oracle", "origin": "http://10.8.110.3:7002", "group": "UAT" },
+            { "name": "uat-mysql", "origin": "http://10.8.110.30:7002", "group": "UAT" }
+          ],
+          "description": "Preset profiles for quick switching"
+        },
+        "proxyUrlSwitcher.currentProfile": {
+          "type": "string",
+          "default": "",
+          "description": "Current selected profile name",
+          "scope": "window"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "vsce": "^1.103.1"
+  },
+  "overrides": {
+    "undici": "^5.28.4"
+  }
+}
