@@ -2,7 +2,7 @@
   "name": "proxy-url-switcher",
   "displayName": "Proxy URL Switcher",
   "description": "One-click update for proxy-url-list-new.json",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "icon": "resources/icon.png",
   "publisher": "tony",
   "author": "tony",
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/inteplm/website-3"
+    "url": "https://github.com/tony-wei1990/vscode-proxy-url-switch"
   },
   "scripts": {
     "package": "vsce package"
@@ -27,8 +27,8 @@
       "activitybar": [
         {
           "id": "proxy-switcher-container",
-          "title": "Service Proxy",
-          "icon": "resources/icon.svg"
+          "title": "代理切换",
+          "icon": "resources/icon.png"
         }
       ]
     },
@@ -37,7 +37,7 @@
         {
           "id": "proxyUrlSwitcher.view",
           "name": "Proxy Targets",
-          "icon": "resources/icon.svg"
+          "icon": "resources/icon.png"
         }
       ]
     },

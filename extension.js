@@ -26,6 +26,22 @@ function normalizeOrigin(input) {
   }
 }
 
+function hasExplicitPort(origin) {
+  try {
+    const u = new URL(origin);
+    return Boolean(u.port);
+  } catch {
+    return false;
+  }
+}
+
+function validateOriginInputRequirePort(input) {
+  const origin = normalizeOrigin(input);
+  if (!origin) return '输入格式不合法';
+  if (!hasExplicitPort(origin)) return '端口不能为空，例如 10.8.150.33:7002';
+  return null;
+}
+
 function groupBy(items, getKey) {
   return items.reduce((acc, item) => {
     const key = getKey(item) || '';
@@ -80,7 +96,8 @@ function applyOriginToMap(mapObj, origin, onlyKeys) {
     }
     const next = new URL(url.toString());
     next.protocol = originUrl.protocol;
-    next.host = originUrl.host;
+    next.hostname = originUrl.hostname;
+    if (originUrl.port) next.port = originUrl.port;
     const nextValue = next.toString().replace(/\/$/, '');
     if (nextValue !== value) {
       out[key] = nextValue;
@@ -91,6 +108,16 @@ function applyOriginToMap(mapObj, origin, onlyKeys) {
 }
 
 async function applyOrigin(origin, selectedTargets) {
+  const normalized = normalizeOrigin(origin);
+  if (!normalized) {
+    vscode.window.showErrorMessage('地址不合法');
+    return;
+  }
+  if (!hasExplicitPort(normalized)) {
+    vscode.window.showErrorMessage('端口不能为空，例如 10.8.150.33:7002');
+    return;
+  }
+
   const uri = await pickTargetFile();
   if (!uri) return;
 
@@ -102,12 +129,12 @@ async function applyOrigin(origin, selectedTargets) {
     return;
   }
 
-  const { out, changed } = applyOriginToMap(json, origin, selectedTargets);
+  const { out, changed } = applyOriginToMap(json, normalized, selectedTargets);
   await writeJson(uri, out);
 
   const fileName = vscode.workspace.asRelativePath(uri);
   const changedText = changed.length ? `，更新 ${changed.length} 项` : '，无变化';
-  vscode.window.showInformationMessage(`已应用 ${origin} 到 ${fileName}${changedText}`);
+  vscode.window.showInformationMessage(`已应用 ${normalized} 到 ${fileName}${changedText}`);
 }
 
 function getProfiles() {
@@ -416,11 +443,13 @@ function activate(context) {
 
     const input = await vscode.window.showInputBox({
       prompt: '输入 host:port 或完整 URL（例如 10.8.130.1:7002 或 http://10.8.130.1:7002）',
-      value: ''
+      value: '',
+      validateInput: validateOriginInputRequirePort
     });
+    if (input === undefined) return;
     const origin = normalizeOrigin(input);
-    if (!origin) {
-      if (input) vscode.window.showErrorMessage('输入格式不合法');
+    if (!origin || !hasExplicitPort(origin)) {
+      vscode.window.showErrorMessage(!origin ? '输入格式不合法' : '端口不能为空，例如 10.8.150.33:7002');
       return;
     }
 
@@ -478,11 +507,13 @@ function activate(context) {
 
     const input = await vscode.window.showInputBox({
       prompt: '输入地址（例如：http://10.8.1.1:7002）',
-      placeHolder: 'http://10.8.1.1:7002'
+      placeHolder: 'http://10.8.1.1:7002',
+      validateInput: validateOriginInputRequirePort
     });
+    if (input === undefined) return;
     const origin = normalizeOrigin(input);
-    if (!origin) {
-      if (input) vscode.window.showErrorMessage('输入地址格式不合法');
+    if (!origin || !hasExplicitPort(origin)) {
+      vscode.window.showErrorMessage(!origin ? '输入地址格式不合法' : '端口不能为空，例如 10.8.150.33:7002');
       return;
     }
 
@@ -529,6 +560,10 @@ function activate(context) {
         vscode.window.showErrorMessage('地址不合法');
         return;
       }
+      if (!hasExplicitPort(normalized)) {
+        vscode.window.showErrorMessage('端口不能为空，请删除该地址后重新添加（例如 10.8.150.33:7002）');
+        return;
+      }
       const selectedTargets = getSelectedTargets(context, provider.latest.map);
       await context.workspaceState.update(STATE_CURRENT_ORIGIN, normalized);
       if (name) {
@@ -550,11 +585,13 @@ function activate(context) {
   const setHostPort = vscode.commands.registerCommand('proxyUrlSwitcher.setHostPort', async () => {
     const input = await vscode.window.showInputBox({
       prompt: '输入 host:port 或完整 URL（例如 10.8.130.1:7002 或 http://10.8.130.1:7002）',
-      value: ''
+      value: '',
+      validateInput: validateOriginInputRequirePort
     });
+    if (input === undefined) return;
     const origin = normalizeOrigin(input);
-    if (!origin) {
-      vscode.window.showErrorMessage('输入格式不合法');
+    if (!origin || !hasExplicitPort(origin)) {
+      vscode.window.showErrorMessage(!origin ? '输入格式不合法' : '端口不能为空，例如 10.8.150.33:7002');
       return;
     }
     const selectedTargets = getSelectedTargets(context, provider.latest.map);
@@ -580,6 +617,10 @@ function activate(context) {
       vscode.window.showErrorMessage(`profile origin 不合法：${picked.profile.origin}`);
       return;
     }
+    if (!hasExplicitPort(origin)) {
+      vscode.window.showErrorMessage(`profile 缺少端口：${picked.profile.origin}`);
+      return;
+    }
     await setCurrentProfile(picked.profile.name);
     const selectedTargets = getSelectedTargets(context, provider.latest.map);
     await context.workspaceState.update(STATE_CURRENT_ORIGIN, origin);
@@ -599,6 +640,10 @@ function activate(context) {
     const origin = normalizeOrigin(profile.origin);
     if (!origin) {
       vscode.window.showErrorMessage(`profile origin 不合法：${profile.origin}`);
+      return;
+    }
+    if (!hasExplicitPort(origin)) {
+      vscode.window.showErrorMessage(`profile 缺少端口：${profile.origin}`);
       return;
     }
     const selectedTargets = getSelectedTargets(context, provider.latest.map);
