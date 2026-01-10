@@ -1,10 +1,10 @@
 {
-  "name": "proxy-url-switcher",
-  "displayName": "Proxy URL Switcher",
+  "name": "api-proxy-manager",
+  "displayName": "API Proxy Manager",
   "description": "One-click update for proxy-url-list-new.json",
-  "version": "0.0.10",
+  "version": "0.0.13",
   "icon": "resources/icon.png",
-  "publisher": "tony",
+  "publisher": "tony-wei-devops",
   "author": "tony",
   "license": "MIT",
   "engines": {
