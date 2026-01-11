@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/tony-wei1990/vscode-proxy-url-switch"
+    "url": "https://github.com/tony-jerry/vscode-proxy-url-switch"
   },
   "scripts": {
     "package": "vsce package"

@@ -46,7 +46,7 @@ VSCode 插件，用于快速切换 `proxy-url-list*.json` 中的服务代理地�
 
 ## 源代码
 
-- https://github.com/tony-wei1990/vscode-proxy-url-switch
+- https://github.com/tony-jerry/vscode-proxy-url-switch
 
 ## 打包安装
 
